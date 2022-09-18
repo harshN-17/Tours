@@ -1,25 +1,50 @@
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './App.css';
+import Loading from './Components/Loading';
+import Tours from './Components/Tours';
+const url = 'https://course-api.com/react-tours-project';
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [loading, setLoading] = React.useState(true);
+  const [tours, setTours] = React.useState([]);
+
+  const fetchTours = async () => {
+    setLoading(true);
+    const response = await fetch(url);
+    const tourLocal = await response.json();
+    setLoading(false);
+    setTours(tourLocal);
+  };
+
+  useEffect(()=>{
+    fetchTours()
+  },[]);
+
+  const removeTour = (id)=> {
+    const newTours = tours.filter((tour)=>tour.id !== id);
+    setTours(newTours);
+  }
+
+  
+  if(loading) {
+    return(
+      <Loading />
+      );
+  }
+  if(tours.length === 0) {
+    return(
+      <div className='no--list'>
+        No interesting Destination Left
+        <button className='btn refresh' onClick={()=>fetchTours()}>Refresh  </button>
+      </div>
+    )
+  }
+    else {
+      return(
+      <Tours removeTour={removeTour} tours={tours}/>
+      );
+  }
 }
 
 export default App;
